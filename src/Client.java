@@ -4,28 +4,46 @@ import java.io.*;
 public class Client {
     public static void main(String[] args) {
         try {
-            // 1. Connexion au serveur et envoi de message au serveur
             Socket sock_client = new Socket("localhost", 5000);
-            PrintWriter out = new PrintWriter(sock_client.getOutputStream(), true);
-            out.println("Bonjour serveur"); // <-- envoie direct
+            System.out.println("Connecté au serveur !");
 
-
-            // 2. Réception du message du serveur
+            // Flux byte
             InputStream in = sock_client.getInputStream();
-            byte[] message = new byte[1000];
-            int nbrbitsrecus = in.read(message);
+            OutputStream out = sock_client.getOutputStream();
 
-            if (nbrbitsrecus > 0) {
-                System.out.println("Message du serveur : " +
-                        new String(message, 0, nbrbitsrecus));
+            // Envoi automatique d'un premier message
+            out.write("connected to server\n".getBytes());
+            out.flush();
 
-                // 3. Envoi d'une réponse au serveur
-               // Important pour envoyer les données
-            }
+            // Clavier pour envoyer des messages
+            BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
-            // 4. Fermeture des ressources
-            in.close();
-            sock_client.close();
+            // Thread envoyer messages → serveur
+            Thread sender = new Thread(() -> {
+                String message;
+                try {
+                    while ((message = keyboard.readLine()) != null) {
+                        out.write((message + "\n").getBytes());  // send bytes
+                        out.flush();
+                    }
+                } catch (IOException e) { e.printStackTrace(); }
+            });
+            sender.start();
+
+            // Thread recevoir messages ← serveur
+            Thread receiver = new Thread(() -> {
+                try {
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = in.read(buffer)) != -1) {
+                        String message = new String(buffer, 0, len);
+                        System.out.println("Serveur : " + message);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Erreur de lecture : " + e.getMessage());
+                }
+            });
+            receiver.start();
 
         } catch (IOException e) {
             System.err.println("Erreur client : " + e.getMessage());
