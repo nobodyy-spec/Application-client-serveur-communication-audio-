@@ -2,7 +2,7 @@ import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AudioModuleComplete {
+public class Audio {
     
     // ==================== CONFIGURATION ====================
     private static final float SAMPLE_RATE = 44100.0f;
@@ -13,13 +13,12 @@ public class AudioModuleComplete {
     
     private AudioFormat audioFormat;
     private AtomicBoolean isRecording = new AtomicBoolean(false);
-    private AtomicBoolean isPlaying = new AtomicBoolean(false);
     private TargetDataLine microphone;
     private SourceDataLine speaker;
     private ByteArrayOutputStream audioBuffer;
     
     // ==================== CONSTRUCTEUR ====================
-    public AudioModuleComplete() {
+    public Audio() {
         audioFormat = new AudioFormat(
             SAMPLE_RATE,
             SAMPLE_SIZE,
@@ -30,14 +29,10 @@ public class AudioModuleComplete {
     }
     
     // ==================== ENREGISTREMENT START/STOP ====================
-    
-    /**
-     * Démarrer l'enregistrement (quand bouton cliqué)
-     * L'enregistrement continue jusqu'à stopRecording()
-     */
+         
     public boolean startRecording() {
         if (isRecording.get()) {
-            return false; // Déjà en cours
+            return false; 
         }
         
         try {
@@ -59,10 +54,9 @@ public class AudioModuleComplete {
         }
     }
     
-    /**
-     * Arrêter l'enregistrement (quand bouton relâché)
-     * Retourne les données audio enregistrées
-     */
+     //Arrêter l'enregistrement (quand bouton relâché)
+     // Retourne les données audio enregistrées
+     
     public byte[] stopRecording() {
         if (!isRecording.get()) {
             return null;
@@ -87,15 +81,14 @@ public class AudioModuleComplete {
             }
             
         } catch (Exception e) {
-            // Silence
+           
         }
         
         return null;
     }
     
-    /**
-     * Boucle de capture audio (tourne en arrière-plan)
-     */
+     // Boucle de capture audio (tourne en arrière-plan)
+     
     private void captureAudioLoop() {
         byte[] buffer = new byte[4096]; // Buffer de 4KB
         
@@ -110,12 +103,9 @@ public class AudioModuleComplete {
             }
         }
     }
-    
-    // ==================== LECTURE AUDIO ====================
-    
-    /**
-     * Jouer un message audio reçu
-     */
+
+     // Jouer un message audio reçu
+     
     public void playAudio(byte[] audioData) {
         if (audioData == null || audioData.length == 0) {
             return;
@@ -135,15 +125,13 @@ public class AudioModuleComplete {
                 speaker = null;
                 
             } catch (Exception e) {
-                // Silence
+        
             }
         }).start();
     }
     
-    /**
-     * Pour le streaming en temps réel (appels vocaux)
-     */
-    public void playAudioChunk(byte[] chunk) {
+     // Pour le streaming en temps réel (appels vocaux)
+    public void receiveAudioChunk(byte[] chunk) {
         if (chunk == null || chunk.length == 0) return;
         
         try {
@@ -161,9 +149,8 @@ public class AudioModuleComplete {
         }
     }
     
-    /**
-     * Arrêter la lecture (pour les appels)
-     */
+     // Arrêter la lecture (pour les appels)
+     
     public void stopPlayback() {
         if (speaker != null && speaker.isOpen()) {
             speaker.stop();
@@ -171,22 +158,16 @@ public class AudioModuleComplete {
             speaker = null;
         }
     }
-    
-    // ==================== STREAMING TEMPS RÉEL ====================
-    
-    /**
-     * Interface pour streaming (envoi en temps réel)
-     */
-    public interface AudioStreamCallback {
+
+     // Interface pour streaming (envoi en temps réel)
+    public interface StreamCallback {
         void onAudioData(byte[] data);
     }
     
-    private AudioStreamCallback streamCallback;
+    private StreamCallback streamCallback;
     
-    /**
-     * Démarrer le streaming (pour appels)
-     */
-    public boolean startStreaming(AudioStreamCallback callback) {
+            // Démarrer le streaming (pour appels)
+    public boolean startStreaming(StreamCallback callback) {
         if (isRecording.get()) {
             return false;
         }
@@ -209,10 +190,8 @@ public class AudioModuleComplete {
             return false;
         }
     }
-    
-    /**
-     * Arrêter le streaming
-     */
+            // Arrêter le streaming
+     
     public void stopStreaming() {
         isRecording.set(false);
         streamCallback = null;
@@ -224,9 +203,6 @@ public class AudioModuleComplete {
         }
     }
     
-    /**
-     * Boucle de streaming (envoie des chunks en continu)
-     */
     private void streamAudioLoop() {
         byte[] buffer = new byte[2048]; // Buffer plus petit pour moins de latence
         
@@ -242,12 +218,8 @@ public class AudioModuleComplete {
             }
         }
     }
+                // Normalisation du volume
     
-    // ==================== TRAITEMENT AUDIO ====================
-    
-    /**
-     * Normalisation du volume
-     */
     private byte[] normalizeAudio(byte[] audioData) {
         return normalizeAudio(audioData, audioData.length);
     }
@@ -278,9 +250,6 @@ public class AudioModuleComplete {
         return normalized;
     }
     
-    /**
-     * Compression (optionnelle)
-     */
     public byte[] compressAudio(byte[] audioData, float ratio) {
         if (ratio >= 1.0f || audioData == null) return audioData;
         
@@ -297,18 +266,11 @@ public class AudioModuleComplete {
         return compressed;
     }
     
-    // ==================== ÉTAT ====================
-    
     public boolean isRecording() {
         return isRecording.get();
     }
-    
-    public boolean isPlaying() {
-        return isPlaying.get();
-    }
-    
-    // ==================== MAIN DE TEST (SILENCIEUX) ====================
+   
     public static void main(String[] args) {
-     
+    
     }
 }
