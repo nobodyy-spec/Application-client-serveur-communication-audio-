@@ -87,6 +87,7 @@ public class AudioModuleComplete {
             }
             
         } catch (Exception e) {
+            // Silence
         }
         
         return null;
@@ -134,7 +135,7 @@ public class AudioModuleComplete {
                 speaker = null;
                 
             } catch (Exception e) {
-                
+                // Silence
             }
         }).start();
     }
@@ -305,5 +306,9 @@ public class AudioModuleComplete {
     public boolean isPlaying() {
         return isPlaying.get();
     }
-
+    
+    // ==================== MAIN DE TEST (SILENCIEUX) ====================
+    public static void main(String[] args) {
+     
+    }
 }
