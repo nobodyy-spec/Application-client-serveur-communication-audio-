@@ -3,8 +3,8 @@ import java.io.IOException;
 public class NetworkController implements ChatController {
 
     private YapChatGUI gui;
-    private final Audio audioModule = new Audio(); // ajouté 'final'
-    private Client client; // maintenant initialisé dans onConnect
+    private final Audio audioModule = new Audio();
+    private Client client;
 
     public void setGUI(YapChatGUI gui) {
         this.gui = gui;
@@ -12,13 +12,11 @@ public class NetworkController implements ChatController {
 
     @Override
     public void onConnect(String host, int port) {
-        // INITIALISATION du client
         try {
             this.client = new Client(host, port);
             gui.enableChat();
         } catch (IOException e) {
             System.err.println("Erreur de connexion: " + e.getMessage());
-            // Afficher un message d'erreur dans le GUI
         }
     }
 
@@ -39,12 +37,27 @@ public class NetworkController implements ChatController {
         byte[] audioData = audioModule.stopRecording();
         if (client != null && audioData != null) {
             client.sendAudio(audioData);
+            gui.appendVoiceMessage("YOU", audioData);
         }
     }
 
+    // ✅ NEW METHOD
+    @Override
+    public void playAudio(byte[] audioData) {
+        audioModule.playAudio(audioData);
+    }
+
+    // Called by Client when receiving text
     public void onMessageReceived(String msg) {
         if (gui != null) {
             gui.appendMessage("FRIEND", msg);
+        }
+    }
+
+    // Called by Client when receiving audio
+    public void onAudioReceived(byte[] audioData) {
+        if (gui != null) {
+            gui.appendVoiceMessage("FRIEND", audioData);
         }
     }
 }

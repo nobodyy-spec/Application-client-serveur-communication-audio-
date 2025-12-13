@@ -7,4 +7,6 @@ public interface ChatController {
     void onStartRecording();
 
     void onStopRecording();
+    void playAudio(byte[] audioData);
+
 }

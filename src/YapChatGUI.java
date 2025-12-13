@@ -5,7 +5,28 @@ import java.awt.event.*;
 import java.net.URL;
 
 public class YapChatGUI extends JFrame {
+    //Handling sending audios
+    public void appendVoiceMessage( String sender, byte[] audioData){
 
+        JButton voiceMsg = new JButton("🎤 Voice message (click to play)");
+
+        voiceMsg.addActionListener(e -> {
+            controller.playAudio(audioData); // 🔊 plays ONLY when clicked
+        });
+
+        if (sender.equals("YOU")) {
+            voiceMsg.setBackground(new Color(139, 94, 153));
+        } else {
+            voiceMsg.setBackground(new Color(255, 240, 255));
+        }
+
+        chatPanel.add(voiceMsg);
+        chatPanel.add(Box.createVerticalStrut(5));
+        chatPanel.revalidate();
+
+        JScrollBar bar = scrollPane.getVerticalScrollBar();
+        bar.setValue(bar.getMaximum());
+    }
     // ===== UI COMPONENTS =====
     private JPanel chatPanel;
     private JTextField messageField;
@@ -103,7 +124,6 @@ public class YapChatGUI extends JFrame {
                 controller.onStopRecording();
             }
         });
-
         sendButton = new JButton("✈");
         sendButton.setEnabled(false);
         sendButton.setPreferredSize(new Dimension(50, 50));
